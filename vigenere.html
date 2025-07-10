@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vigenère Titkosító</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+    input, textarea, button { padding: 10px; margin: 10px 0; width: 100%; }
+    textarea { height: 100px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vigenère Titkosító</h1>
+    <label for="message">Üzenet:</label>
+    <textarea id="message" placeholder="Ide írd az üzenetet..."></textarea>
+
+    <label for="key">Kulcsszó:</label>
+    <input type="text" id="key" placeholder="Pl. TITOK" />
+
+    <button onclick="encrypt()">Titkosítás</button>
+    <button onclick="decrypt()">Visszafejtés</button>
+
+    <label for="result">Eredmény:</label>
+    <textarea id="result" readonly></textarea>
+  </div>
+
+  <script>
+    function cleanText(text) {
+      return text.toUpperCase().replace(/[^A-Z]/g, '');
+    }
+
+    function vigenere(text, key, decrypt = false) {
+      let result = '';
+      let cleanKey = cleanText(key);
+      if (!cleanKey) return '';
+      let j = 0;
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i];
+        if (/[a-zA-Z]/.test(c)) {
+          let isUpper = c === c.toUpperCase();
+          let base = isUpper ? 65 : 97;
+          let charCode = c.charCodeAt(0) - base;
+          let keyCode = cleanKey[j % cleanKey.length].charCodeAt(0) - 65;
+          if (decrypt) {
+            charCode = (charCode - keyCode + 26) % 26;
+          } else {
+            charCode = (charCode + keyCode) % 26;
+          }
+          result += String.fromCharCode(charCode + base);
+          j++;
+        } else {
+          result += c;
+        }
+      }
+      return result;
+    }
+
+    function encrypt() {
+      const text = document.getElementById('message').value;
+      const key = document.getElementById('key').value;
+      document.getElementById('result').value = vigenere(text, key, false);
+    }
+
+    function decrypt() {
+      const text = document.getElementById('message').value;
+      const key = document.getElementById('key').value;
+      document.getElementById('result').value = vigenere(text, key, true);
+    }
+  </script>
+</body>
+</html>
